@@ -1,0 +1,54 @@
+##################################################################################################
+# springboot-azure-kubernetes
+##################################################################################################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: springboot-azure-kubernetes
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-azure-kubernetes
+  labels:
+    app: springboot-azure-kubernetes
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: springboot-azure-kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-azure-kubernetes
+spec:
+  selector:
+    matchLabels:
+      app: springboot-azure-kubernetes
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: springboot-azure-kubernetes
+        version: v1
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1500
+      serviceAccountName: springboot-azure-kubernetes
+      containers:
+        - image: aksnksk8s.azurecr.io/spring-aks/springboot-azure-kubernetes
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 0.1
+            limits:
+              memory: 800Mi
+              cpu: 1
+          name: springboot-azure-kubernetes
+          ports:
+            - containerPort: 8080
